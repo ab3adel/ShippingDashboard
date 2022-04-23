@@ -9,18 +9,21 @@ import {
   CDataTable,
   CRow,
   CPagination,
-  CSelect,
   CButton,
   CModal,
   CModalBody,
   CModalFooter,
   CModalHeader,
   CModalTitle,
-  CAlert
+  CAlert,
+
+
 } from '@coreui/react'
+import {Pagination} from '../Pagination/pagination'
 import '../../globalVar'
 import ReplayForm from './ReplayForm/ReplayForm'
 import './contactUs.scss'
+
 
 
 const ConatctUs = () => {
@@ -32,7 +35,7 @@ const ConatctUs = () => {
   const [refresh, setRefresh] = useState(false)
   const [errorMessage, setErrorMessage] = useState();
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState()
+  const [paginationInfo, setPaginationInfo] = useState({current_page:1,total:1})
   const [succesAdd, setSuccessAdd] = useState()
   const [loading, setLoading] = useState('')
   const [pageStatus, setPageStatus] = useState(0)
@@ -41,8 +44,9 @@ const ConatctUs = () => {
   const [modal, setModal] = useState(false)
   const [activeItem, setActiveItem] = useState({ id: '', message: '' })
   const [url, setUrl] = useState(`contactUs/viewAllContactUsRequests?`)
+
   const handleSetItemToreplay = async (item) => {
-    console.log(item)
+
     await setActiveItem({ id: item.id, message: item.message })
     setDataText('')
     await setModal(!modal)
@@ -63,65 +67,67 @@ const ConatctUs = () => {
     else { setUrl(`contactUs/viewAllContactUsRequests?`) }
 
   }
-  useEffect(async () => {
-    const fetchFAQs = async (e) => {
-      try {
-        const responsee = await fetch(
-          `${global.apiUrl}api/contacts?paginate=0`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: "Bearer " + userToken,
-              Accept: "application/json",
-            },
+  const fetchFAQs = async (pageNumber) => {
+    try {
+      const responsee = await fetch(
+        `${global.apiUrl}api/contacts?page=${pageNumber}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + userToken,
+            Accept: "application/json",
+          },
 
 
-          }
-        );
-        if (responsee.status == 204) {
-          setData([])
-          setTotalPages()
-        }
-        const response = await responsee.json();
-        console.log('faqs', response);
-        if (response.success) {
-
-          let temp = []
-
-          await response.payload.map((item, index) => {
-
-            temp.push({
-              ...item,
-
-              "الاسم": item.name,
-              "الإيميل": item.email,
-              "الشركة": item.company,
-              "الموضوع": item.subject,
-              "الرسالة": item.message,
-              "التاريخ": item.created_at.slice(0, 10),
-
-            })
-
-          })
-          setData(temp)
 
         }
-        if (response.message && response.message == "Unauthenticated.") {
-          localStorage.removeItem("token");
-          localStorage.clear()
-
-          history.push("/login");
-        }
-
-      } catch (err) {
-        console.log(err);
+      );
+      const response = await responsee.json();
+      console.log(response.payload)
+      if (response.status == 204) {
+        setData([])
 
       }
 
 
 
+      if (response.success) {
+
+        let temp = []
+        setPaginationInfo(pre=>({current_page:response.payload.current_page,total:response.payload.last_page}))
+        await response.payload.data.map((item, index) => {
+
+          temp.push({
+            ...item,
+
+            "الاسم": item.name,
+            "الإيميل": item.email,
+            "الشركة": item.company,
+            "الموضوع": item.subject,
+            "الرسالة": item.message,
+            "التاريخ": item.created_at.slice(0, 10),
+
+
+          })
+
+        })
+        setData(temp)
+
+      }
+      if (response.message && response.message == "Unauthenticated.") {
+        localStorage.removeItem("token");
+        localStorage.clear()
+
+        history.push("/login");
+      }
+
+    } catch (err) {
+      console.log(err);
 
     }
+
+  }
+  useEffect( () => {
 
     fetchFAQs()
   }, [currentPage, refresh, url])
@@ -181,7 +187,7 @@ const ConatctUs = () => {
     dataText && data.append('message', dataText);
     dataText && data.append('contact_id', activeItem.id);
 
-    console.log('message', dataText)
+
 
     try {
       const responsee = await fetch(
@@ -193,15 +199,14 @@ const ConatctUs = () => {
             // "Content-Type": "application/json",
             //'Access-Control-Allow-Origin': 'https://localhost:3000',
             // 'Access-Control-Allow-Credentials': 'true',
-            Accept: "application/json",
+
           },
           body: data,
 
         }
       );
       const response = await responsee.json();
-      console.log('response', response);
-      console.log(response);
+
       if (response.success) {
         // setDataText("")
         setActiveItem(activeItem)
@@ -222,6 +227,25 @@ const ConatctUs = () => {
 
     setLoading(false)
   }
+const handleSeen =  (id) => {
+
+    fetch (`${global.apiUrl}api/seen?id=${id}`,
+  {
+    method:'GET',
+    headers: {
+      Authorization: "Bearer " + userToken,
+      Accept: "application/json",
+    },
+  })
+  .then(res=>res.json())
+  .then (res=>{
+    if (res.success) {
+      setRefresh(!refresh)
+    }
+  })
+  .catch(err=>console.log(err))
+}
+console.log(data)
 
   return (
 
@@ -231,7 +255,7 @@ const ConatctUs = () => {
           <CCard>
             <CCardHeader>
               <CCol md='12'><strong>الرسائل</strong></CCol>
-              {/* 
+              {/*
               <CCol md="4" lg="4" xl="4" >
 
                 <CSelect custom name="select" onChange={(e) => handleUrlFilter(e)}>
@@ -267,9 +291,15 @@ const ConatctUs = () => {
                           onClick={() => handleShowModal(item)}
                         > حذف   </CBadge>
                         <br />
+                        <CBadge className="p-1  m-1 badg-click" color={item.seen?"success":"secondary"}
+                           style={{cursor:item.seen?'pointer':"auto"}}
+                           onClick={()=>handleSeen(item.id)}>
+                          {item.seen? "تمت المشاهدة":"شاهد"}</CBadge>
+                          <br />
                         <CBadge className="p-1  m-1 badg-click" color="info"
                           onClick={() => handleSetItemToreplay(item)}  >
                           ارسال رد</CBadge>
+                          <br />
 
                       </td>
 
@@ -280,6 +310,12 @@ const ConatctUs = () => {
               />}
 
             </CCardBody>
+            <Pagination
+             current_page={paginationInfo.current_page}
+               total={paginationInfo.total}
+               fetchFAQs={fetchFAQs}
+             />
+
           </CCard>
         </CCol>
       }

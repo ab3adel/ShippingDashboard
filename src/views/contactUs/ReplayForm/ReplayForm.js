@@ -25,7 +25,7 @@ import { useHistory } from "react-router-dom";
 import '../../../globalVar'
 import Editor from './editor'
 const ReplayForm = ({ dataText, setDataText, }) => {
-  console.log()
+
   return (
 
 

@@ -28,6 +28,7 @@
     "classnames": "^2.2.6",
     "core-js": "^3.9.1",
     "draft-js": "^0.11.7",
+    "draft-js-import-html": "^1.4.1",
     "draftjs-to-html": "^0.9.1",
     "enzyme": "^3.11.0",
     "google-map-react": "^2.1.10",
@@ -58,7 +59,8 @@
     "react-toastify": "^8.0.2",
     "react-trix-rte": "^1.0.14",
     "redux": "^4.0.5",
-    "sass": "^1.32.8",
+    "sass": "^1.50.1",
+    "scss": "^0.2.4",
     "stylis": "^4.0.13",
     "stylis-plugin-rtl": "^2.1.1"
   },

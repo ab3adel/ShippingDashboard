@@ -10,7 +10,7 @@
 .col-gap-15{
     column-gap: 15px;
     display: flex;
-    
+
 }
 .register-cont{
     min-height: unset;
@@ -26,6 +26,7 @@
     min-height: 100%;
     overflow: auto;
     box-sizing: border-box;
+
 }
 .arbicJustfiy{
     direction: rtl;
@@ -39,16 +40,16 @@
     box-shadow: 0 0 0 0.2rem rgb(50 31 219 / 25%);
 }
 .input-group-text {
-  
+
     min-width: 40px;
     place-content: center;
 }
 @media (max-width:768px) {
     .col-gap-15{
       flex-flow: wrap;
-        
+
     }
-    
+
 }
 .demo-editor{
     direction: rtl;
@@ -64,11 +65,11 @@
 .public-DraftStyleDefault-ltr {
     direction: rtl;
     text-align: start;
- 
+
     /* overflow-y: scroll; */
 }
 .DraftEditor-editorContainer  {
-  
+
     min-height: 100px;
     max-height: 200px;
     /* overflow-y: scroll; */
